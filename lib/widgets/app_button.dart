@@ -38,6 +38,7 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     super.key,
     this.backgroundColor = Colors.white,
+    this.borderColor,
     this.fontSize = 20,
     this.fontWeight = FontWeight.normal,
   });
@@ -59,6 +60,10 @@ class AppButton extends StatelessWidget {
 
   final Color backgroundColor;
 
+  /// The button's border colour.
+
+  final Color? borderColor;
+
   /// Override the default text font size.
 
   final double fontSize;
@@ -79,6 +84,9 @@ class AppButton extends StatelessWidget {
           //   textStyle: _buttonTextStyleBold,
           textStyle: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
           backgroundColor: backgroundColor,
+          side: borderColor != null
+              ? BorderSide(color: borderColor!, width: 2)
+              : null,
         ),
         onPressed: onPressed,
         child: MarkdownTooltip(message: tooltip, child: Text(title)),

@@ -40,6 +40,21 @@ import 'package:innerpod/utils/session_logic.dart';
 import 'package:innerpod/widgets/app_button.dart';
 import 'package:innerpod/widgets/app_circular_countdown_timer.dart';
 
+/// The types of sessions available in the app.
+enum SessionType {
+  /// No session is currently active.
+  none,
+
+  /// A standard silent session.
+  start,
+
+  /// An introduction session with audio.
+  intro,
+
+  /// A guided meditation session.
+  guided,
+}
+
 /// The default session length is 20 minutes. That seems to be a world wide
 /// default. We only utilise this constant in this file (at least for now).
 
@@ -69,6 +84,10 @@ class TimerState extends State<Timer> {
   // Track whether a final audio is required at the end of a session.
 
   var _isGuided = false;
+
+  // Track the currently active session type for visual feedback.
+
+  var _activeSession = SessionType.none;
 
   // Record the currently selected duration for the session, as seconds.
 
@@ -118,6 +137,9 @@ class TimerState extends State<Timer> {
     _controller.restart();
     _controller.pause();
     _isGuided = false;
+    setState(() {
+      _activeSession = SessionType.none;
+    });
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -129,6 +151,9 @@ class TimerState extends State<Timer> {
 
     logMessage('Start Intro Session');
     _reset();
+    setState(() {
+      _activeSession = SessionType.intro;
+    });
     _stopSleep();
     _isGuided = false;
     _startTime = DateTime.now();
@@ -172,6 +197,9 @@ class TimerState extends State<Timer> {
 
     logMessage('Start Guided Session');
     _reset();
+    setState(() {
+      _activeSession = SessionType.guided;
+    });
     _stopSleep();
     _isGuided = true;
     _startTime = DateTime.now();
@@ -284,13 +312,21 @@ minutes, beginning and ending with three chimes.
       onPressed: () {
         logMessage('Start Session');
         _reset();
+        setState(() {
+          _activeSession = SessionType.start;
+        });
         dingDong(_player);
         _controller.restart();
         _stopSleep();
         _startTime = DateTime.now();
       },
-      fontWeight: FontWeight.bold,
-      backgroundColor: Colors.lightGreenAccent.shade100,
+      fontWeight: _activeSession == SessionType.start
+          ? FontWeight.bold
+          : FontWeight.normal,
+      backgroundColor: _activeSession == SessionType.start
+          ? Colors.lightGreenAccent
+          : Colors.lightGreenAccent.shade100,
+      borderColor: _activeSession == SessionType.start ? Colors.green : null,
     );
 
     final pauseButton = AppButton(
@@ -345,8 +381,14 @@ three dings.
 '''
           .trim(),
       onPressed: _intro,
-      fontWeight: FontWeight.bold,
-      backgroundColor: Colors.blue.shade100,
+      fontWeight: _activeSession == SessionType.intro
+          ? FontWeight.bold
+          : FontWeight.normal,
+      backgroundColor: _activeSession == SessionType.intro
+          ? Colors.blue
+          : Colors.blue.shade100,
+      borderColor:
+          _activeSession == SessionType.intro ? Colors.blueAccent : null,
     );
 
     final guidedButton = AppButton(
@@ -362,8 +404,14 @@ audio may take a little time to download for the Web version.
 '''
           .trim(),
       onPressed: _guided,
-      fontWeight: FontWeight.bold,
-      backgroundColor: Colors.purple.shade100,
+      fontWeight: _activeSession == SessionType.guided
+          ? FontWeight.bold
+          : FontWeight.normal,
+      backgroundColor: _activeSession == SessionType.guided
+          ? Colors.purple
+          : Colors.purple.shade100,
+      borderColor:
+          _activeSession == SessionType.guided ? Colors.purpleAccent : null,
     );
 
     ////////////////////////////////////
