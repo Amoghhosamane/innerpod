@@ -1,12 +1,34 @@
-/*
- * Copyright (c) 2024–2026 Graham Williams
- * Licensed under the MIT License.
- */
-
-/// A reusable widget for rendering markdown content.
+// A reusable widget for rendering Markdown content using Material 3 styling.
+//
+// Standardizes markdown display across InnerPod.
+//
+// Time-stamp: <Thursday 2026-02-19 20:45:00 +0530 Amogh Hosamane>
+//
+// Copyright (C) 2024-2026, Graham Williams
+//
+// Licensed under the GNU General Public License, Version 3 (the "License");
+//
+// License: https://opensource.org/license/gpl-3-0
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program.  If not, see <https://opensource.org/license/gpl-3-0>.
 ///
-/// Provides consistent markdown styling across the app.
-
+/// Widget purpose: A reusable widget for rendering Markdown content
+/// using Material 3 styling.
+///
+/// Usage intent: Standardizes markdown display across InnerPod.
+///
+/// License: GNU General Public License, Version 3
 library;
 
 import 'package:flutter/material.dart';

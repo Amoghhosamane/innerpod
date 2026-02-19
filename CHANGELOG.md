@@ -6,16 +6,11 @@ Here we record the basic changes made to the InnerPod app.
 
 ## 1.8 IN PROGRESS
 
-+ Prompt for security key if missing when accessing history [1.7.7 20260217]
-+ Maintain timer countdown when navigating tabs [1.7.7 20260217]
-+ Fix final audio not playing on Ubuntu with Zoom [1.7.7 20260217]
 + Fix CI lint failures and synchronize project style [1.8.0 20260219 gjw]
-+ Package for snap release [1.7.5 20251004 gjw]
-+ For GUIDED concat audio then include in app [1.7.4 20250218 gjw]
-+ Review audio. Add 5 minutes option. [1.7.3 20241114 gjw]
-+ Updated Tibetan bell from freesound.org [1.7.2 20241101 gjw]
-+ Use markdown for About with active url links [1.7.1 20241101 gjw]
-+ Move to mp3 rather than ogg for wider OS support [1.7.0 20241025 gjw]
++ Reusable markdown widget for consistent styling [1.8.0 20260219 gjw]
++ Revert upstream links to official repository [1.8.0 20260219 gjw]
++ Clean up проект structure and remove unnecessary configuration files [1.8.0 20260219 gjw]
+
 
 ## 1.7 20241025
 
