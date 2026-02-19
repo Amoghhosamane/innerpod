@@ -1,6 +1,6 @@
 /// Session logic for InnerPod.
 //
-// Time-stamp: <2026-02-10 16:40:00 Amogh Hosamane>
+// Time-stamp: <Thursday 2026-02-19 19:03:17 +1100 Graham Williams>
 //
 /// Copyright (C) 2024-2026, Togaware Pty Ltd
 ///
@@ -31,7 +31,7 @@ const String _prefixes = '''
 ''';
 
 /// Parses a TTL string containing session data into a list of maps.
-/// Returns a list of sessions, where each session is a map with 'start', 'end', 'type', 'silenceDuration', 'name', and 'comment' keys.
+/// Returns a list of sessions, where each session is a map with 'start', 'end', 'type', 'silenceDuration', 'title', and 'description' keys.
 List<Map<String, String>> parseSessions(String? content) {
   if (content == null || content.isEmpty) {
     return [];
@@ -50,8 +50,8 @@ List<Map<String, String>> parseSessions(String? content) {
   final RegExp endRegExp = RegExp(r':end "(.*?)"\^\^xsd:dateTime');
   final RegExp typeRegExp = RegExp(r':type "(.*?)"');
   final RegExp durationRegExp = RegExp(r':silenceDuration (\d+)');
-  final RegExp nameRegExp = RegExp(r':name "(.*?)"');
-  final RegExp commentRegExp = RegExp(r':comment "(.*?)"');
+  final RegExp titleRegExp = RegExp(r':title "(.*?)"');
+  final RegExp descriptionRegExp = RegExp(r':description "(.*?)"');
 
   final matches = sessionBlockRegExp.allMatches(content);
 
@@ -61,17 +61,17 @@ List<Map<String, String>> parseSessions(String? content) {
     final endMatch = endRegExp.firstMatch(block);
     final typeMatch = typeRegExp.firstMatch(block);
     final durationMatch = durationRegExp.firstMatch(block);
-    final nameMatch = nameRegExp.firstMatch(block);
-    final commentMatch = commentRegExp.firstMatch(block);
+    final titleMatch = titleRegExp.firstMatch(block);
+    final descriptionMatch = descriptionRegExp.firstMatch(block);
 
     if (startMatch != null && endMatch != null) {
       sessions.add({
         'start': startMatch.group(1)!,
         'end': endMatch.group(1)!,
-        'type': typeMatch?.group(1) ?? 'basic',
+        'type': typeMatch?.group(1) ?? 'bell',
         'silenceDuration': durationMatch?.group(1) ?? '1200',
-        'name': nameMatch?.group(1) ?? '',
-        'comment': commentMatch?.group(1) ?? '',
+        'title': titleMatch?.group(1) ?? '',
+        'description': descriptionMatch?.group(1) ?? '',
       });
     }
   }
@@ -94,10 +94,10 @@ String serializeSessions(List<Map<String, String>> sessions) {
   for (final session in sessions) {
     final String start = session['start']!;
     final String end = session['end']!;
-    final String type = session['type'] ?? 'basic';
+    final String type = session['type'] ?? 'bell';
     final String duration = session['silenceDuration'] ?? '1200';
-    final String name = session['name'] ?? '';
-    final String comment = session['comment'] ?? '';
+    final String title = session['title'] ?? '';
+    final String description = session['description'] ?? '';
 
     // Use timestamp as unique ID
     final String id = DateTime.parse(start).millisecondsSinceEpoch.toString();
@@ -107,8 +107,10 @@ String serializeSessions(List<Map<String, String>> sessions) {
     buffer.write('    :end "$end"^^xsd:dateTime;\n');
     buffer.write('    :type "$type";\n');
     buffer.write('    :silenceDuration $duration');
-    if (name.isNotEmpty) buffer.write(';\n    :name "$name"');
-    if (comment.isNotEmpty) buffer.write(';\n    :comment "$comment"');
+    if (title.isNotEmpty) buffer.write(';\n    :title "$title"');
+    if (description.isNotEmpty) {
+      buffer.write(';\n    :description "$description"');
+    }
     buffer.write('.\n');
   }
 
@@ -116,6 +118,8 @@ String serializeSessions(List<Map<String, String>> sessions) {
 }
 
 /// Adds a new session to the existing TTL content.
+/// If currentContent is null or empty, initializes with prefixes.
+/// Returns the updated TTL content string.
 String addSession(String? currentContent, Map<String, dynamic> newSession) {
   List<Map<String, String>> sessions = parseSessions(currentContent);
 
@@ -123,10 +127,10 @@ String addSession(String? currentContent, Map<String, dynamic> newSession) {
   final Map<String, String> sessionToAdd = {
     'start': newSession['start'].toString(),
     'end': newSession['end'].toString(),
-    'type': (newSession['type'] ?? 'basic').toString(),
+    'type': (newSession['type'] ?? 'bell').toString(),
     'silenceDuration': (newSession['silenceDuration'] ?? 1200).toString(),
-    'name': (newSession['name'] ?? '').toString(),
-    'comment': (newSession['comment'] ?? '').toString(),
+    'title': (newSession['title'] ?? '').toString(),
+    'description': (newSession['description'] ?? '').toString(),
   };
 
   sessions.add(sessionToAdd);
@@ -153,11 +157,11 @@ String updateSession(
 
   if (index != -1) {
     final session = sessions[index];
-    if (updatedData.containsKey('name')) {
-      session['name'] = updatedData['name'].toString();
+    if (updatedData.containsKey('title')) {
+      session['title'] = updatedData['title'].toString();
     }
-    if (updatedData.containsKey('comment')) {
-      session['comment'] = updatedData['comment'].toString();
+    if (updatedData.containsKey('description')) {
+      session['description'] = updatedData['description'].toString();
     }
     if (updatedData.containsKey('type')) {
       session['type'] = updatedData['type'].toString();

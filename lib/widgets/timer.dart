@@ -1,6 +1,6 @@
 // A countdown timer and buttons for a session.
 //
-// Time-stamp: <Thursday 2026-02-19 10:25:00 +1000 Antigravity AI>
+// Time-stamp: <Thursday 2026-02-19 19:57:31 +1100 Graham Williams>
 //
 /// Copyright (C) 2024-2026, Togaware Pty Ltd
 ///
@@ -84,7 +84,7 @@ class TimerState extends State<Timer> {
 
   // Track the session type.
 
-  String _sessionType = 'basic';
+  String _sessionType = 'bell';
 
   ////////////////////////////////////////////////////////////////////////
   // CONSTANTS
@@ -103,8 +103,8 @@ class TimerState extends State<Timer> {
 
   // Controllers for session metadata.
 
-  final _nameController = TextEditingController();
-  final _commentController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   ////////////////////////////////////////////////////////////////////////
   // SLEEP
@@ -142,8 +142,8 @@ class TimerState extends State<Timer> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _commentController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     _player.dispose();
     super.dispose();
   }
@@ -303,8 +303,8 @@ class TimerState extends State<Timer> {
       'end': endTime.toIso8601String(),
       'type': _sessionType,
       'silenceDuration': _duration,
-      'name': _nameController.text,
-      'comment': _commentController.text,
+      'title': _titleController.text,
+      'description': _descriptionController.text,
     };
 
     try {
@@ -318,12 +318,12 @@ class TimerState extends State<Timer> {
       }
 
       String newContent = addSession(content, session);
-      await writePod('sessions.ttl', newContent);
+      await writePod('sessions.ttl', newContent, overwrite: true);
       logMessage('Session saved to Pod');
 
       _startTime = null;
-      _nameController.clear();
-      _commentController.clear();
+      _titleController.clear();
+      _descriptionController.clear();
     } on SecurityKeyNotAvailableException {
       debugPrint('Security key missing - cannot save session. Prompting user.');
       if (mounted) {
@@ -336,8 +336,8 @@ class TimerState extends State<Timer> {
     } catch (e) {
       logMessage('Error saving session to Pod: $e');
       _startTime = null;
-      _nameController.clear();
-      _commentController.clear();
+      _titleController.clear();
+      _descriptionController.clear();
     }
   }
 
@@ -375,7 +375,7 @@ circle indicates an active session.
           _controller.restart();
           _stopSleep();
           setState(() {
-            _sessionType = 'basic';
+            _sessionType = 'bell';
             _startTime = DateTime.now();
           });
         }
@@ -447,7 +447,7 @@ three dings. The blue progress circle indicates an active session.
 Tap here to play a ${10 + (_duration / 60).round()} minute guided session.
 The session begins with instructions for meditation from John Main.
 Introductory music is followed by three chimes and a ${(_duration / 60).round()}
-minute silent session which is then finished with another three chimes. The 
+minute silent session which is then finished with another three chimes. The
 blue progress circle indicates an active session.  The
 audio may take a little time to download for the Web version.
 
@@ -545,10 +545,10 @@ audio may take a little time to download for the Web version.
             child: Column(
               children: [
                 TextField(
-                  controller: _nameController,
+                  controller: _titleController,
                   decoration: InputDecoration(
-                    labelText: 'NAME',
-                    hintText: 'Enter session name (optional)',
+                    labelText: 'Title',
+                    hintText: 'Enter session title (optional)',
                     prefixIcon: const Icon(Icons.label_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -560,10 +560,10 @@ audio may take a little time to download for the Web version.
                 ),
                 const SizedBox(height: 12),
                 TextField(
-                  controller: _commentController,
+                  controller: _descriptionController,
                   decoration: InputDecoration(
-                    labelText: 'COMMENT',
-                    hintText: 'Enter session comment (optional)',
+                    labelText: 'Description',
+                    hintText: 'Enter session description (optional)',
                     prefixIcon: const Icon(Icons.notes),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -592,6 +592,7 @@ audio may take a little time to download for the Web version.
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 2 * heightSpacer),
                   timerDisplay,
                   const SizedBox(height: 2 * heightSpacer),
                   buttonsMatrix,

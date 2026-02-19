@@ -11,6 +11,18 @@ Here we record the basic changes made to the InnerPod app.
 + Revert upstream links to official repository [1.8.0 20260219 gjw]
 + Clean up проект structure and remove unnecessary configuration files [1.8.0 20260219 gjw]
 
+## 1.7 20241025
+
++ Redesign and modernise [1.7.9 20260219 amogh]
++ Add title/description and support edit and delete [1.7.8 20260219 amogh]
++ Implement private logging of sessions [1.7.7 20260213 amogh]
++ Review and set up installers [1.7.6 20251213 gjw]
++ Package for snap release [1.7.5 20251004 gjw]
++ For GUIDED concat audio then include in app [1.7.4 20250218 gjw]
++ Review audio. Add 5 minutes option. [1.7.3 20241114 gjw]
++ Updated Tibetan bell from freesound.org [1.7.2 20241101 gjw]
++ Use markdown for About with active url links [1.7.1 20241101 gjw]
++ Move to mp3 rather than ogg for wider OS support [1.7.0 20241025 gjw]
 
 ## 1.7 20241025
 

@@ -1,10 +1,31 @@
 /// A table of past sessions logged to the user's Solid Pod.
-//
-// Time-stamp: <2026-02-19 10:25:00 Antigravity AI>
-//
+///
+// Time-stamp: <Thursday 2026-02-19 20:39:57 +1100 Graham Williams>
+///
 /// Copyright (C) 2024-2026, Togaware Pty Ltd
 ///
 /// Licensed under the GNU General Public License, Version 3 (the "License");
+///
+/// License: https://opensource.org/license/gpl-3-0
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program.  If not, see <https://opensource.org/license/gpl-3-0>.
+///
+/// Authors: Amogh Hosamane
+
+// Add the library directive as we have doc entries above. We publish the above
+// meta doc lines in the docs.
+
 library;
 
 import 'package:flutter/material.dart';
@@ -75,11 +96,11 @@ class _HistoryState extends State<History> {
           'date': DateFormat('yyyy-MM-dd').format(start),
           'start': DateFormat('HH:mm:ss').format(start),
           'end': DateFormat('HH:mm:ss').format(end),
-          'type': item['type'] ?? 'basic',
+          'type': item['type'] ?? 'bell',
           'duration':
               '${(int.parse(item['silenceDuration'] ?? '1200') / 60).round()}m',
-          'name': item['name'] ?? '',
-          'comment': item['comment'] ?? '',
+          'title': item['title'] ?? '',
+          'description': item['description'] ?? '',
         };
       }).toList();
 
@@ -131,7 +152,11 @@ class _HistoryState extends State<History> {
       try {
         final content = await readPod('sessions.ttl');
         final newContent = deleteSession(content, rawStart);
-        await writePod('sessions.ttl', newContent);
+        await writePod(
+          'sessions.ttl',
+          newContent,
+          overwrite: true,
+        );
         await _loadSessions();
       } on SecurityKeyNotAvailableException {
         debugPrint(
@@ -157,8 +182,9 @@ class _HistoryState extends State<History> {
   }
 
   Future<void> _editSession(Map<String, String> session) async {
-    final nameController = TextEditingController(text: session['name']);
-    final commentController = TextEditingController(text: session['comment']);
+    final titleController = TextEditingController(text: session['title']);
+    final descriptionController =
+        TextEditingController(text: session['description']);
 
     final updated = await showDialog<bool>(
       context: context,
@@ -169,10 +195,10 @@ class _HistoryState extends State<History> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: nameController,
+                controller: titleController,
                 decoration: InputDecoration(
-                  labelText: 'Name',
-                  hintText: 'Enter session name',
+                  labelText: 'Title',
+                  hintText: 'Enter session title',
                   prefixIcon: const Icon(Icons.label_outline),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -181,10 +207,10 @@ class _HistoryState extends State<History> {
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: commentController,
+                controller: descriptionController,
                 decoration: InputDecoration(
-                  labelText: 'Comment',
-                  hintText: 'Enter session comment',
+                  labelText: 'Description',
+                  hintText: 'Enter session description',
                   prefixIcon: const Icon(Icons.notes),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -213,10 +239,14 @@ class _HistoryState extends State<History> {
       try {
         final content = await readPod('sessions.ttl');
         final newContent = updateSession(content, session['rawStart']!, {
-          'name': nameController.text,
-          'comment': commentController.text,
+          'title': titleController.text,
+          'description': descriptionController.text,
         });
-        await writePod('sessions.ttl', newContent);
+        await writePod(
+          'sessions.ttl',
+          newContent,
+          overwrite: true,
+        );
         await _loadSessions();
       } on SecurityKeyNotAvailableException {
         debugPrint(
@@ -337,17 +367,17 @@ class _HistoryState extends State<History> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      session['name']!.isEmpty
-                                          ? 'Untitled Session'
-                                          : session['name']!,
+                                      session['title']!.isEmpty
+                                          ? 'Session'
+                                          : session['title']!,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    if (session['comment']!.isNotEmpty)
+                                    if (session['description']!.isNotEmpty)
                                       Text(
-                                        session['comment']!,
+                                        session['description']!,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
