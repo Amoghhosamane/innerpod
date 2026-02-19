@@ -9,7 +9,7 @@ Here we record the basic changes made to the InnerPod app.
 + Fix CI lint failures and synchronize project style [1.8.0 20260219 gjw]
 + Reusable markdown widget for consistent styling [1.8.0 20260219 gjw]
 + Revert upstream links to official repository [1.8.0 20260219 gjw]
-+ Clean up проект structure and remove unnecessary configuration files [1.8.0 20260219 gjw]
++ Clean up project structure and remove unnecessary configuration files [1.8.0 20260219 gjw]
 
 ## 1.7 20241025
 
