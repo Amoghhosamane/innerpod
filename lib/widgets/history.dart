@@ -82,6 +82,17 @@ class _HistoryState extends State<History> {
         }
         content = null;
       } catch (e) {
+        if (e.toString().contains('security key')) {
+          debugPrint(
+              'Security key missing (generic exception). Prompting user.',);
+          if (mounted) {
+            await getKeyFromUserIfRequired(context, widget);
+            if (mounted) {
+              await _loadSessions();
+              return;
+            }
+          }
+        }
         // Log other errors related to reading from Pod
         debugPrint('Error accessing sessions.ttl: $e');
         content = null;
@@ -171,6 +182,18 @@ class _HistoryState extends State<History> {
           }
         }
       } catch (e) {
+        if (e.toString().contains('security key')) {
+          debugPrint(
+            'Security key missing (generic exception) - cannot decrypt sessions.ttl for deletion',
+          );
+          if (mounted) {
+            await getKeyFromUserIfRequired(context, widget);
+            if (mounted) {
+              await _deleteSession(rawStart);
+              return;
+            }
+          }
+        }
         debugPrint('Error deleting session: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -180,6 +203,82 @@ class _HistoryState extends State<History> {
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _deleteAllSessions() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete All Sessions'),
+        content: const Text(
+          'Are you sure you want to delete ALL sessions? This action cannot be undone.',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colours.error.withValues(alpha: 0.1),
+              foregroundColor: colours.error,
+              elevation: 0,
+            ),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _performDeleteAll();
+    }
+  }
+
+  Future<void> _performDeleteAll() async {
+    setState(() => _isLoading = true);
+    try {
+      final newContent = serializeSessions([]);
+      await writePod(
+        'sessions.ttl',
+        newContent,
+        overwrite: true,
+      );
+      await _loadSessions();
+    } on SecurityKeyNotAvailableException {
+      debugPrint(
+        'Security key missing - cannot write sessions.ttl for bulk deletion',
+      );
+      if (mounted) {
+        await getKeyFromUserIfRequired(context, widget);
+        if (mounted) {
+          await _performDeleteAll();
+        }
+      }
+    } catch (e) {
+      if (e.toString().contains('security key')) {
+        debugPrint(
+          'Security key missing (generic exception) - cannot write sessions.ttl for bulk deletion',
+        );
+        if (mounted) {
+          await getKeyFromUserIfRequired(context, widget);
+          if (mounted) {
+            await _performDeleteAll();
+            return;
+          }
+        }
+      }
+      debugPrint('Error deleting all sessions: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete all sessions: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -261,6 +360,18 @@ class _HistoryState extends State<History> {
           }
         }
       } catch (e) {
+        if (e.toString().contains('security key')) {
+          debugPrint(
+            'Security key missing (generic exception) - cannot decrypt sessions.ttl for update',
+          );
+          if (mounted) {
+            await getKeyFromUserIfRequired(context, widget);
+            if (mounted) {
+              await _editSession(session);
+              return;
+            }
+          }
+        }
         debugPrint('Error updating session: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -275,14 +386,24 @@ class _HistoryState extends State<History> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SolidScaffold(
       backgroundColor: colours.transparent,
       appBar: AppBar(
         title: const Text('Session History'),
         automaticallyImplyLeading: false, // Don't show back button
         actions: [
+          if (_sessions.isNotEmpty)
+            IconButton(
+              icon: const Icon(
+                Icons.delete_sweep_outlined,
+                color: colours.error,
+              ),
+              tooltip: 'Delete all sessions',
+              onPressed: _deleteAllSessions,
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: _loadSessions,
           ),
           const SizedBox(width: 8),
@@ -349,7 +470,7 @@ class _HistoryState extends State<History> {
                                       children: [
                                         Text(
                                           session['date']!,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 12,
                                             color: colours.grey600,
                                             fontWeight: FontWeight.w500,
@@ -380,7 +501,7 @@ class _HistoryState extends State<History> {
                                         session['description']!,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 13,
                                           color: colours.grey600,
                                         ),
@@ -388,7 +509,7 @@ class _HistoryState extends State<History> {
                                     const SizedBox(height: 4),
                                     Text(
                                       '${session['start']} - ${session['end']}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 11,
                                         color: colours.grey500,
                                       ),

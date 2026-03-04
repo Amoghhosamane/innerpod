@@ -31,6 +31,7 @@ import 'package:innerpod/constants/colors.dart' as colours;
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import 'package:innerpod/widgets/app_markdown_body.dart';
+import 'package:solidui/solidui.dart';
 
 /// A widget for text instructions, prayers, quotes.
 
@@ -43,7 +44,7 @@ class Instructions extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
-      child: Scaffold(
+      child: SolidScaffold(
         appBar: AppBar(
           backgroundColor: colours.transparent,
           elevation: 0,

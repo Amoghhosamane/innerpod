@@ -138,7 +138,7 @@ class HomeState extends State<Home> {
   Widget build(BuildContext context) {
     // final dateStr = DateFormat('dd MMMM yyyy').format(DateTime.now());
 
-    return Scaffold(
+    return SolidScaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(

@@ -341,6 +341,18 @@ class TimerState extends State<Timer> {
         }
       }
     } catch (e) {
+      if (e.toString().contains('security key')) {
+        debugPrint(
+          'Security key missing (generic exception) - cannot save session. Prompting user.',
+        );
+        if (mounted) {
+          await getKeyFromUserIfRequired(context, widget);
+          if (mounted) {
+            await _saveSession();
+            return;
+          }
+        }
+      }
       logMessage('Error saving session to Pod: $e');
       _startTime = null;
       _titleController.clear();
